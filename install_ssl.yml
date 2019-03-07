@@ -1,0 +1,16 @@
+---
+
+- name: Install SSL Certificate using Let's Encrypt
+  hosts: production
+  remote_user: ubuntu
+  become: yes
+  handlers:
+    - name: Reload nginx
+      service:
+        name: nginx
+        state: reloaded
+  roles:
+    - role: ssl
+      param_app_name: philippinedev
+      param_domains:
+        - philippinedev.com

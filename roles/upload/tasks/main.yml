@@ -1,0 +1,28 @@
+---
+
+- name: Create base directory
+  file:
+    path: /var/www
+    state: directory
+
+- name: Create {{ param_app_name }} directory structure
+  file:
+    path: /var/www/{{ param_app_name }}/{{ item }}
+    state: directory
+    owner: ubuntu
+  with_items:
+    - application
+    - shared
+    - shared/log
+
+- name: Copy static website
+  copy:
+    src: "{{ param_public_source_files }}"
+    dest: /var/www/{{ param_app_name }}/application/public
+
+- name: Copy vhost
+  template:
+    src: vhost.conf.j2
+    dest: /etc/nginx/conf.d/{{ param_app_name }}.conf
+  notify: Reload nginx
+

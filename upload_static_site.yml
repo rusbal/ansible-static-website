@@ -1,0 +1,12 @@
+---
+
+- name: Deploy static website
+  hosts: production
+  remote_user: ubuntu
+  become: yes
+  roles:
+    - role: upload
+      param_app_name: philippinedev
+      param_public_source_files: /Users/rsusbal/Programming/philippinedev/philippinedev.com/nanoc-dev/output/
+      param_domains:
+        - philippinedev.com

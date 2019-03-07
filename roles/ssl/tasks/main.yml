@@ -1,0 +1,35 @@
+- name: Check for running nginx
+  command: service nginx status
+  changed_when: false
+  failed_when: false
+  register: check_nginx
+
+- set_fact:
+    nginx_running: "{{ check_nginx.rc == 0 }}"
+
+- block:
+  - name: NGINX_RUNNING Generate certificate with nginx module
+    command: certbot certonly --noninteractive --nginx --agree-tos --email raymond@philippinedev.com --domain www.{{ item }}
+    args:
+      creates: /etc/letsencrypt/live/www.{{ item }}
+    with_items: "{{ param_domains }}"
+
+  - name: List letencrypt certificate directory
+    command: ls -t1 /etc/letsencrypt/live/
+    register: check_certificates
+
+  - name: Get latest certificate directory for vhost-ssl
+    set_fact: latest_certificate="{{ check_certificates.stdout_lines[0] }}"
+
+  - name: Copy vhost-ssl
+    template:
+      src: vhost-ssl.conf.j2
+      dest: /etc/nginx/conf.d/{{ param_app_name }}.conf
+    notify: Reload nginx
+
+  when: nginx_running
+
+- debug:
+    msg: "NGINX_NOT_RUNNING: ssl not created for www.{{ item }}."
+  when: nginx_running == false
+

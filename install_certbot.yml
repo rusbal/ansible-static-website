@@ -1,0 +1,13 @@
+---
+
+- name: Install Certbot for free SSL
+  hosts: production
+  remote_user: ubuntu
+  become: yes
+  tasks:
+    - name: Install python-certbot-nginx
+      apt:
+        name: python-certbot-nginx
+        state: present
+        update_cache: yes
+
